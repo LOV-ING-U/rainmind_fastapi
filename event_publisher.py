@@ -9,11 +9,11 @@ async def init_db():
 
 async def main():
     await init_db()
-    redis = await redis()
+    redis_client = await redis()
 
     while True:
         async with session_maker() as session:
-            await enqAfterCommit(session, redis)
+            await enqAfterCommit(session, redis_client)
 
         await asyncio.sleep(1)
 

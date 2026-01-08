@@ -44,7 +44,7 @@ async def test():
     # check status
     assert response.status_code == 201, response.text
     schedule_id = response.json()["scheduleId"]
-    print("generated schedule id : " + schedule_id)
+    print("generated schedule id : " + str(schedule_id))
 
     # automatic test version
     outbox_sent = False
@@ -74,7 +74,7 @@ async def test():
 
         await asyncio.sleep(0.2)
 
-    await r.close()
+    await r.aclose()
 
     assert outbox_sent, "event_publisher failed"
     assert queue_empty, "worker failed"
@@ -103,4 +103,4 @@ async def test():
     # assert payload is not None, "Failed deque in redis"
 
     # print("[Alarm]", json.loads(payload))
-    # await r.close()
+    # await r.aclose()

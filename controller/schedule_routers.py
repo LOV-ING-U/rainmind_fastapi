@@ -9,7 +9,7 @@ router = APIRouter(prefix = "/schedules", tags = ["schedules"])
 
 @router.post("", response_model = ScheduleCreateResponse, status_code = 201)
 async def create_schedule(body: ScheduleCreateRequest, session: AsyncSession = Depends(get_session)):
-    schedule_id = await createSchedule(session, **body.dict())
+    schedule_id = await createSchedule(session, **body.model_dump())
     return ScheduleCreateResponse(scheduleId = schedule_id)
 
 @router.delete("/{schedule_id}", response_model = ScheduleDeleteResponse, status_code = 200)

@@ -8,12 +8,14 @@ services: # service = redis, event_publisher, worker, test
     build:
       context: . # root(this folder)
       dockerfile: dockerfile.test
+    working_dir: /app
     command: ["python", "event_publisher.py"]
     depends_on:
       - redis
     environment:
+      PYTHONPATH: /app
       REDIS_URL: redis://redis:6379/0
-      DATABASE_URL: sqlite+aiosqlite:///./reainmind_test.db
+      DATABASE_URL: sqlite+aiosqlite:////data/rainmind_test.db
     volumes:
       - testdb:/data
       
@@ -21,24 +23,28 @@ services: # service = redis, event_publisher, worker, test
     build:
       context: .
       dockerfile: dockerfile.test
+    working_dir: /app
     command: ["python", "worker.py"]
     depends_on:
       - redis
     environment:
+      PYTHONPATH: /app
       REDIS_URL: redis://redis:6379/0
 
   test:
     build:
-      context:
+      context: .
       dockerfile: dockerfile.test
-    command: ["pytest", "-q"]
+    working_dir: /app
+    command: ["python", "-m", "pytest", "-q"]
     depends_on:
       - redis
       - event_publisher
       - worker
     environment:
+      PYTHONPATH: /app
       REDIS_URL: redis://redis:6379/0
-      DATABASE_URL: sqlite+aiosqlite:///./reainmind_test.db
+      DATABASE_URL: sqlite+aiosqlite:////data/rainmind_test.db
     volumes:
       - testdb:/data
 

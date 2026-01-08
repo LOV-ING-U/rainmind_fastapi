@@ -28,7 +28,8 @@ async def createSchedule(session: AsyncSession, title: str, location: str, start
             scheduleId = schedule.id,
             payload = payload,
             status = "PENDING",
-            createdAt = datetime.now()
+            createdAt = datetime.now(),
+            alarmAt = schedule.startAt - timedelta(minutes = 30)
         ))
 
     return schedule.id
