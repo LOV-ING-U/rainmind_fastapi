@@ -12,7 +12,7 @@ async def createSchedule(session: AsyncSession, title: str, location: str, start
     # transaction
     async with session.begin():
         schedule = await save(
-            session, Schedule(title = title, location = location, startAt = startAt, endAt = endAt)
+            session, Schedule(title = title, location = location, startAt = startAt, endAt = endAt, alarmAt = (startAt - timedelta(minutes = 30)))
         )
 
         payload = json.dumps({
@@ -39,7 +39,7 @@ async def deleteSchedule(session: AsyncSession, schedule_id: int):
         schedule = await findById(session, schedule_id)
 
         if schedule is None:
-            return ScheduleNotFoundException()
+            raise ScheduleNotFoundException()
         
         await delete(session, schedule)
     
