@@ -18,4 +18,3 @@ class Outbox(Base):
     payload = Column(String, nullable = False)
     status = Column(String, nullable = False)
     createdAt = Column(DateTime, nullable = False)
-    alarmAt = Column(DateTime, nullable = False)

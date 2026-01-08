@@ -3,7 +3,12 @@ from db import *
 from redis_operation import *
 from service.outbox_service import *
 
+async def init_db():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
 async def main():
+    await init_db()
     redis = await redis()
 
     while True:

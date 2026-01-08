@@ -12,7 +12,7 @@ async def createSchedule(session: AsyncSession, title: str, location: str, start
     # transaction
     async with session.begin():
         schedule = await save(
-            session, Schedule(title = title, location = location, startAt = startAt, endAt = endAt, alarmAt = (startAt - timedelta(minutes = 30)))
+            session, Schedule(title = title, location = location, startAt = startAt, endAt = endAt)
         )
 
         payload = json.dumps({

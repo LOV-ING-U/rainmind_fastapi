@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from redis.asyncio import Redis
+import os
 
 ZSET_KEY = "alarm:queue"
 
@@ -26,7 +27,8 @@ LUA_POP_SCRIPT = """
 """
 
 async def redis() -> Redis:
-    return Redis(host = "localhost", port = 6379, decode_responses = True)
+    url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+    return Redis.from_url(url, decode_responses = True)
 
 async def alarm_enqueue(redis: Redis, payload: str, alarmAt: datetime):
     score = alarmAt.replace(tzinfo = ZoneInfo("Asia/Seoul")).timestamp()
