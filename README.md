@@ -69,4 +69,6 @@ FastAPI의 AsyncClient를 이용하여 실제 router를 호출한 후 schedule/o
 2) image 만들기  
 docker compose -f docker-compose.test.yml build --no-cache  
 3) container 실행  
-docker compose -f docker-compose.test.yml up --abort-on-container-exit
+docker compose -f docker-compose.test.yml up --abort-on-container-exit  
+  
+컨테이너 실행 종료 시 테스트가 통과합니다.
