@@ -8,8 +8,12 @@ Spring 기반 프로젝트이던 기존의 RainMind의 Schedule part를 FastAPI�
 원본 Spring 프로젝트 링크는 아래와 같습니다.  
 https://github.com/LOV-ING-U/project_rainmind  
 
-## 2. 동작 방식  
-사용자가 일정을 등록하면, redis sorted set에 해당 일정 시작 시각 30분 전에 알람을 등록합니다. 그리고 해당 시각이 되면 알람을 출력합니다.  
+## 2. 시스템 흐름
+1) Client: POST /schedules  
+2) Schedule + Outbox(status = PENDING) 저장 with transaction  
+3) event_publisher가 PENDING Outbox를 조회 후, redis zset에 알람 등록(score = alarm 시각)  
+4) worker가 Lua script 이용한 atomic zset dequeue로 알람 1개 pop  
+5) 알람 출력  
   
 ## 3. 문제 정의 및 해결  
 일정 생성 후 알람을 redis에 등록하면 아래와 같은 redis와 DB의 데이터가 일치하지 않는 정합성 문제가 발생할 수 있습니다.  
@@ -33,7 +37,7 @@ DB와 redis의 완전한 데이터 정합성 유지는 트랜잭션으로 그 �
   
 ## 5. 정합성  
 - DB 정합성: Schedule, Outbox는 함께 Transaction 수행  
-- Redis 미반영: Worker의 재시도 기능으로 방지  
+- Redis 미반영: Outbox 기반 event publisher의 지속적 재시도로 반영됨  
 - Redis 알람 중복 dequeue 방지: Lua script 이용  
   
 - 전체 구조: Redis 중복 enqueue 가능성 존재(알람의 payload가 다르다면), Redis dequeue 이후 알람 유실 가능  
@@ -59,7 +63,7 @@ DB와 redis의 완전한 데이터 정합성 유지는 트랜잭션으로 그 �
 </p>  
   
 ## 7. 실행 방법  
-FastAPI의 AsyncClient를 이용하여 실제 router를 호출하는 테스트코드를 작성했습니다.  
+FastAPI의 AsyncClient를 이용하여 실제 router를 호출한 후 schedule/outbox 생성 및 event_publisher의 redis enqueue 동작, 그리고 worker의 redis dequeue 동작을 검증하는 테스트코드를 작성했습니다.  
   
 1) docker 실행  
 2) image 만들기  
