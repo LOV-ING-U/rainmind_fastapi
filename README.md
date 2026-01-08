@@ -29,9 +29,9 @@ DB와 redis를 완벽히 동기화시키는 것은 불가능합니다. 따라서
 ## 4. 왜 Outbox pattern을 사용했는가?  
 DB와 redis의 완전한 데이터 정합성 유지는 트랜잭션으로 그 작업들을 묶을 수 없으므로 현실적으로 불가능합니다. 따라서  
   
-1) 별도의 Outbox 테이블을 만들고, 일정 등록과 동시에 Outbox 테이블에 pending signal로서 해당 일정을 하나의 트랜잭션으로 저장  
-2) Redis 등록 후 outbox 상태를 변경  
-3) 별도의 Worker가 주기적으로 pending signal을 redis에 등록  
+1) Schedule 생성 시 Outbox(PENDING)에 event를 transaction으로 함께 저장
+2) Publisher를 통한 PENDING Outbox 조회 및 Redis ZSet enqueue
+3) Worker가 Redis에서 atomic dequeue를 수행하여 알람을 출력   
   
 하게 된다면, DB나 Redis 둘 중 하나가 실패해도 알람이 유실되지 않고, 시스템 재시작 후에도 DB의 데이터를 통해 작업 수행이 이어서 가능합니다.  
   
@@ -40,9 +40,9 @@ DB와 redis의 완전한 데이터 정합성 유지는 트랜잭션으로 그 �
 - Redis 미반영: Outbox 기반 event publisher의 지속적 재시도로 반영됨  
 - Redis 알람 중복 dequeue 방지: Lua script 이용  
   
-- 전체 구조: Redis 중복 enqueue 가능성 존재(알람의 payload가 다르다면), Redis dequeue 이후 알람 유실 가능  
+- 전체 구조: Redis 중복 enqueue 가능성 존재(publisher의 재시도/중복 실행), Redis dequeue 이후 알람 유실 가능(at most once property), DB -> Redis 반영 유실 해결  
   
-전체적으로 모델 설계로 인한 알람 유실 문제는 해결하였고, 서비스 설계 특성상 유실이 중복보다 심각한 문제이므로 trade off를 선택했습니다.  
+서비스 설계 특성상 유실이 중복보다 심각한 문제이므로 이러한 trade off를 선택했습니다.  
 필요시 아래와 같은 확장이 가능합니다.  
   
 - Outbox status를 deleted 등 확장하여 알람 삭제 기능 지원  
