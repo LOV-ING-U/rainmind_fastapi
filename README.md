@@ -18,15 +18,15 @@ https://github.com/LOV-ING-U/project_rainmind
 ## 3. 문제 정의 및 해결  
 일정 생성 후 알람을 redis에 등록하면 아래와 같은 redis와 DB의 데이터가 일치하지 않는 정합성 문제가 발생할 수 있습니다.  
   
-1) DB에 일정 삽입에 성공했으나, redis 알람 등록에 실패한 경우: 알람이 유실됩니다.  
+1) DB에 일정 삽입에 성공했으나, Redis 알람 등록에 실패한 경우: 알람이 유실됩니다.  
 2) Redis에 알람이 등록되었지만, DB 삽입은 실패한 경우: 유령 알람이 발생합니다.  
-3) Worker 여러 대가 동시에 redis를 보며 일정 확인을 위해 dequeue할 경우: 중복 알람 혹은 예기치 못한 동작이 발생합니다.  
+3) Worker 여러 대가 동시에 Redis를 보며 일정 확인을 위해 dequeue할 경우: 중복 알람 혹은 예기치 못한 동작이 발생합니다.  
   
 해당 프로젝트는 사용자가 알람을 등록할 때 발생하는 데이터 정합성 문제를 해결하기 위해 Outbox pattern을 적용합니다.  
   
 DB와 redis를 완벽히 동기화시키는 것은 불가능합니다. 따라서 서비스 설계 목적 상, 알람 유실이 유령 알람/중복 알람보다 치명적이기 때문에 알람 유실을 막기 위해 Outbox pattern을 적용합니다.  
   
-## 4. 왜 Outbox pattern을 사용했는가?  
+## 4. 왜 Outbox pattern이 필요한가?  
 DB와 redis의 완전한 데이터 정합성 유지는 트랜잭션으로 그 작업들을 묶을 수 없으므로 현실적으로 불가능합니다. 따라서  
   
 1) Schedule 생성 시 Outbox(PENDING)에 event를 transaction으로 함께 저장
@@ -63,7 +63,7 @@ DB와 redis의 완전한 데이터 정합성 유지는 트랜잭션으로 그 �
 </p>  
   
 ## 7. 실행 방법  
-FastAPI의 AsyncClient를 이용하여 실제 router를 호출한 후 schedule/outbox 생성 및 event_publisher의 redis enqueue 동작, 그리고 worker의 redis dequeue 동작을 검증하는 테스트코드를 작성했습니다.  
+FastAPI의 AsyncClient를 이용하여 실제 router를 호출한 후 schedule/outbox 생성 및 event_publisher의 Redis enqueue 동작, 그리고 Worker의 redis dequeue 동작을 검증하는 테스트코드를 작성했습니다.  
   
 1) docker 실행  
 2) image 만들기  
