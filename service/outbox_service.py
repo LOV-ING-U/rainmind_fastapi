@@ -12,8 +12,5 @@ async def enqAfterCommit(session: AsyncSession, redis: Redis):
     
     for event in pendings:
         await alarm_enqueue(redis, event.payload, event.alarmAt)
-    
-    for event in pendings:
         event.status = "SENT"
-
-    await session.commit()
+        await session.commit()
