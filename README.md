@@ -4,6 +4,9 @@
 일정(Schedule) 생성 시 알림을 자동으로 예약(30분 전)하고, 지정된 시각에 알림을 출력하는 서비스입니다.  
   
 Spring 기반 프로젝트이던 기존의 RainMind의 Schedule part를 FastAPI에서 구현하였습니다. Outbox pattern / Redis ZSet / Lua Script 이용 atomic operation을 FastAPI 환경으로 1:1 변환하는 것을 목표하였습니다. 
+  
+원본 Spring 프로젝트 링크는 아래와 같습니다.  
+https://github.com/LOV-ING-U/project_rainmind  
 
 ## 2. 동작 방식  
 사용자가 일정을 등록하면, redis sorted set에 해당 일정 시작 시각 30분 전에 알람을 등록합니다. 그리고 해당 시각이 되면 알람을 출력합니다.  
